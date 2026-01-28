@@ -58,8 +58,12 @@ export function InputArea({ onSendMessage, disabled = false }: InputAreaProps) {
   const isNearLimit = remainingChars < 100;
 
   return (
-    <div className="border-t border-gray-200 p-4 bg-white" role="region" aria-label="Message input area">
-      <div className="flex items-center gap-2">
+    <div 
+      className="p-3 sm:p-4 bg-white" 
+      role="region" 
+      aria-label="Message input area"
+    >
+      <div className="flex items-end gap-2">
         <div className="flex-1 relative">
           <Input
             value={input}
@@ -72,7 +76,7 @@ export function InputArea({ onSendMessage, disabled = false }: InputAreaProps) {
             onKeyDown={handleKeyDown}
             placeholder="Type your message..."
             disabled={disabled}
-            className="pr-10"
+            className="pr-10 min-h-[44px] text-sm sm:text-base"
             aria-label="Message input"
             aria-describedby="char-count input-help"
             maxLength={MAX_MESSAGE_LENGTH}
@@ -98,6 +102,7 @@ export function InputArea({ onSendMessage, disabled = false }: InputAreaProps) {
           aria-label="Upload file"
           title="File upload (coming soon)"
           type="button"
+          className="h-11 w-11 flex-shrink-0"
         >
           <Upload className="h-5 w-5" aria-hidden="true" />
         </Button>
@@ -106,16 +111,22 @@ export function InputArea({ onSendMessage, disabled = false }: InputAreaProps) {
           disabled={disabled || !input.trim() || input.length > MAX_MESSAGE_LENGTH}
           aria-label="Send message"
           type="button"
+          className="h-11 px-4 sm:px-6 flex-shrink-0"
         >
-          Send
+          <span className="hidden sm:inline">Send</span>
+          <span className="sm:hidden">→</span>
         </Button>
       </div>
-      <div className="flex items-center justify-between mt-2">
+      <div className="flex items-center justify-between mt-2 flex-wrap gap-1">
         <p id="input-help" className="text-xs text-gray-500">
-          Press Enter to send, Shift+Enter for new line
+          <span className="hidden sm:inline">Press Enter to send, Shift+Enter for new line</span>
+          <span className="sm:hidden">Enter to send</span>
         </p>
         {input.length > 0 && (
-          <span className={`text-xs ${isNearLimit ? 'text-orange-600' : 'text-gray-400'}`}>
+          <span 
+            className={`text-xs font-medium ${isNearLimit ? 'text-orange-600' : 'text-gray-400'}`}
+            aria-label={`${input.length} of ${MAX_MESSAGE_LENGTH} characters`}
+          >
             {input.length} / {MAX_MESSAGE_LENGTH}
           </span>
         )}

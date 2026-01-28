@@ -1,0 +1,28 @@
+# CrewAI Task Configuration
+# This file defines tasks for the onboarding workflow
+# Tasks will be dynamically created based on workflow requirements
+
+tasks:
+  - id: document_collection
+    description: "Collect and verify all required employee documents"
+    agent: document_verification_agent
+    expected_output: "Document verification status with compliance flags"
+    dependencies: []
+
+  - id: training_assignment
+    description: "Assign role-based training modules to new employee"
+    agent: training_coordinator_agent
+    expected_output: "Training assignments with schedule and completion tracking"
+    dependencies: []
+
+  - id: stakeholder_coordination
+    description: "Coordinate with managers, buddies, and departments"
+    agent: stakeholder_coordinator_agent
+    expected_output: "Stakeholder assignments and communication confirmations"
+    dependencies: []
+
+  - id: it_provisioning
+    description: "Provision IT access and systems for new employee"
+    agent: it_provisioning_agent
+    expected_output: "IT access provisioning status with system access confirmations"
+    dependencies: ["document_collection"]

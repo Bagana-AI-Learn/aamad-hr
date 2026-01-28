@@ -49,9 +49,10 @@ This repository demonstrates AAMAD in action by building an **Automated Employee
 - **Positive ROI within 6 months** for companies onboarding 50+ employees annually
 - **95%+ compliance rate** vs. industry average of 77%
 
-**Project Status:** Phase 2 (Build) - Frontend MVP Complete  
+**Project Status:** Phase 2 (Build) - Frontend & Backend MVP Complete  
 **PRD Document:** [`project-context/1.define/prd.md`](project-context/1.define/prd.md)  
-**Frontend Plan:** [`project-context/2.build/frontend.md`](project-context/2.build/frontend.md)
+**Frontend Plan:** [`project-context/2.build/frontend.md`](project-context/2.build/frontend.md)  
+**Backend Plan:** [`project-context/2.build/backend.md`](project-context/2.build/backend.md)
 
 The PRD defines a comprehensive multi-agent system with five specialized agents:
 1. **Onboarding Orchestrator** - Supervises and coordinates the workflow
@@ -85,10 +86,31 @@ npm install
 npm run dev
 ```
 Then open `http://localhost:3000` in your browser.
-Then open `http://localhost:3000` in your browser.
+
+**Backend MVP Status:** ✅ Complete (Chat API & CrewAI backend)
+- ✅ FastAPI backend with health and chat endpoints
+- ✅ CrewAI crew manager with orchestrator agent (simplified MVP crew)
+- ✅ Agent configuration loaded from YAML (`backend/config/agents.yaml`)
+- ✅ Stub tools for all planned agents (no real integrations yet)
+- ✅ Streaming chat API (Server-Sent Events)
+
+**Backend Location:** [`backend/`](backend/) directory
+
+**Backend Documentation:**
+- Backend Plan & Implementation: [`project-context/2.build/backend.md`](project-context/2.build/backend.md)
+- Backend README: [`backend/README.md`](backend/README.md)
+
+**Backend Quick Start:**
+```bash
+cd backend
+python -m venv venv
+venv\Scripts\activate  # Windows
+pip install -r requirements.txt
+python run.py
+```
+Then open `http://localhost:8000/docs` in your browser.
 
 **Next Steps:** 
-- Backend implementation (CrewAI agent orchestration)
 - API integration connecting frontend to backend
 - End-to-end testing and QA
 
@@ -139,16 +161,26 @@ flowchart LR
 
     aamad/
     ├─ .cursor/
-    │ ├─ agents/ # Agent persona markdown files (definitions & actions)
-    │ ├─ prompts/ # Parameterized and phase-specific agent prompts
-    │ ├─ rules/ # Architecture, workflow, and epics rules/patterns
-    │ └─ templates/ # Generation templates for research, PRD, SAD, etc.
+    │ ├─ agents/          # Agent persona markdown files (definitions & actions)
+    │ ├─ prompts/         # Parameterized and phase-specific agent prompts
+    │ ├─ rules/           # Architecture, workflow, and epics rules/patterns
+    │ └─ templates/       # Generation templates for research, PRD, SAD, etc.
+    ├─ backend/           # Python backend (CrewAI agents + FastAPI)
+    │ ├─ api/             # FastAPI route handlers (chat, future endpoints)
+    │ ├─ config/          # Agent and task YAML configs
+    │ ├─ services/        # Crew manager and integration stubs
+    │ ├─ tools/           # Stub tools for agents
+    │ ├─ models/          # (Stub) database models
+    │ └─ utils/           # Config and agent loader utilities
+    ├─ frontend/          # Next.js frontend (chat UI + onboarding UI)
+    │ ├─ app/             # App Router pages and API routes
+    │ └─ components/      # Chat, onboarding, and placeholder components
     ├─ project-context/
-    │ ├─ 1.define/ # Project-specific PRD, SAD, research reports, etc.
-    │ ├─ 2.build/ # Output artifacts for setup, frontend, backend, etc.
-    │ └─ 3.deliver/ # QA logs, deploy configs, release notes, etc.
-    ├─ CHECKLIST.md # Step-by-step execution guide
-    └─ README.md # This file
+    │ ├─ 1.define/        # Project-specific PRD, SAD, research reports, etc.
+    │ ├─ 2.build/         # Output artifacts for setup, frontend, backend, etc.
+    │ └─ 3.deliver/       # QA logs, deploy configs, release notes, etc.
+    ├─ CHECKLIST.md       # Step-by-step execution guide
+    └─ README.md          # This file
 
 
 **Framework artifacts** (in `.cursor/`) are reusable for any new project.  
@@ -248,10 +280,10 @@ The Product Manager works closely with research, product, business, and architec
 Each role is embodied by an agent persona, defined in `.cursor/agents/`.  
 Phase 2 is executed by running each epic in sequence after completing Phase 1:
 
-- **Architecture:** Generate solution architecture document (`sad.md`) - ⏳ Pending
-- **Setup:** Scaffold environment, install dependencies, and document (`setup.md`) - ⏳ Pending
+- **Architecture:** Generate solution architecture document (`sad.md`) - ✅ Complete
+- **Setup:** Scaffold environment, install dependencies, and document (`setup.md`) - ✅ Complete
 - **Frontend:** Build UI + placeholders, document (`frontend.md`) - ✅ Complete & Rebuilt
-- **Backend:** Implement backend, document (`backend.md`) - ⏳ Pending
+- **Backend:** Implement backend, document (`backend.md`) - ✅ Complete
 - **Integration:** Wire up chat flow, verify, document (`integration.md`) - ⏳ Pending
 - **Quality Assurance:** Test end-to-end, log results and limitations (`qa.md`) - ⏳ Pending
 

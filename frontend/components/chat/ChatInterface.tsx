@@ -6,20 +6,42 @@ import { InputArea } from './InputArea';
 import { AgentStatus } from './AgentStatus';
 import { useChatStore } from '@/store/chatStore';
 import { mockAgentStatus } from '@/lib/constants';
-import { Loader2 } from 'lucide-react';
 
 interface ChatInterfaceProps {
   initialMessages?: any[];
   onMessageSent?: (message: string) => void;
 }
 
+/**
+ * ChatInterface Component
+ * 
+ * Main chat interface component for LLM interaction.
+ * Uses Zustand store for MVP with mock responses.
+ * Prepared for assistant-ui integration when backend is ready.
+ * 
+ * Reference:
+ * - SAD Section 4.3: Chat Interface Specifications
+ * - PRD Section 6: User Experience Design - Agent Interaction Design
+ * - Frontend Plan Section 4.1: Chat Interface Components
+ * 
+ * Note: assistant-ui runtime integration will be added when backend is connected.
+ * Current implementation uses Zustand store for state management.
+ */
 export function ChatInterface({ initialMessages, onMessageSent }: ChatInterfaceProps) {
-  const { messages, isLoading, addMessage } = useChatStore();
+  const { messages, isLoading } = useChatStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Initialize with initialMessages if provided
+  useEffect(() => {
+    if (initialMessages && initialMessages.length > 0) {
+      // Will handle initial messages when backend is connected
+      // For MVP, messages are managed via Zustand store
+    }
+  }, [initialMessages]);
 
   const handleSendMessage = (message: string) => {
     if (onMessageSent) {
@@ -29,11 +51,26 @@ export function ChatInterface({ initialMessages, onMessageSent }: ChatInterfaceP
   };
 
   return (
-    <div className="flex flex-col h-full w-full bg-gray-50" role="region" aria-label="Chat interface">
+    <div 
+      className="flex flex-col h-full w-full bg-gray-50" 
+      role="region" 
+      aria-label="Chat interface"
+    >
       {/* Header with Agent Status */}
-      <header className="border-b border-gray-200 bg-white p-4 flex-shrink-0">
-        <h1 className="text-xl font-semibold mb-2 text-gray-900">Onboarding Assistant</h1>
-        <AgentStatus agent={mockAgentStatus} />
+      <header className="border-b border-gray-200 bg-white p-3 sm:p-4 flex-shrink-0">
+        <h1 className="text-lg sm:text-xl font-semibold mb-2 text-gray-900">
+          Onboarding Assistant
+        </h1>
+        <div className="hidden sm:block">
+          <AgentStatus agent={mockAgentStatus} />
+        </div>
+        {/* Mobile: Compact agent status */}
+        <div className="sm:hidden">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-blue-500" aria-hidden="true" />
+            <span className="text-xs text-gray-600">{mockAgentStatus.name}</span>
+          </div>
+        </div>
       </header>
 
       {/* Messages Area */}
@@ -44,12 +81,23 @@ export function ChatInterface({ initialMessages, onMessageSent }: ChatInterfaceP
         aria-live="polite"
         aria-atomic="false"
       >
-        <div className="h-full overflow-y-auto">
+        <div className="h-full overflow-y-auto px-2 sm:px-4">
           <MessageList messages={messages} />
           {isLoading && (
-            <div className="flex items-center justify-center p-4" role="status" aria-live="polite">
-              <Loader2 className="h-5 w-5 animate-spin text-blue-600" aria-hidden="true" />
-              <span className="ml-2 text-sm text-gray-600">Agent is thinking...</span>
+            <div 
+              className="flex items-center justify-center p-4" 
+              role="status" 
+              aria-live="polite"
+              aria-label="Agent is processing your message"
+            >
+              <div className="flex items-center gap-2">
+                <div className="flex gap-1">
+                  <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+                <span className="ml-2 text-sm text-gray-600">Agent is thinking...</span>
+              </div>
             </div>
           )}
           <div ref={messagesEndRef} aria-hidden="true" />
@@ -57,7 +105,7 @@ export function ChatInterface({ initialMessages, onMessageSent }: ChatInterfaceP
       </section>
 
       {/* Input Area */}
-      <footer className="flex-shrink-0">
+      <footer className="flex-shrink-0 border-t border-gray-200 bg-white">
         <InputArea onSendMessage={handleSendMessage} disabled={isLoading} />
       </footer>
     </div>

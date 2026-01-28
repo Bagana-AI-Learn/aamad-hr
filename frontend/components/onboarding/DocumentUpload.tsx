@@ -36,17 +36,17 @@ export function DocumentUpload() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Document Upload</CardTitle>
-        <CardDescription>
+    <Card className="h-full">
+      <CardHeader className="pb-3 sm:pb-4">
+        <CardTitle className="text-lg sm:text-xl">Document Upload</CardTitle>
+        <CardDescription className="text-xs sm:text-sm">
           Upload required documents for onboarding. This is a visual placeholder - functionality will be available after backend integration.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div
           className={cn(
-            'border-2 border-dashed rounded-lg p-8 text-center transition-colors',
+            'border-2 border-dashed rounded-lg p-4 sm:p-6 lg:p-8 text-center transition-colors',
             isDragging
               ? 'border-blue-600 bg-blue-50'
               : 'border-gray-300 hover:border-gray-400'
@@ -54,18 +54,27 @@ export function DocumentUpload() {
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
+          role="button"
+          aria-label="Document upload area"
+          tabIndex={0}
         >
-          <Upload className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-          <p className="text-sm text-gray-600 mb-2">
+          <Upload className="h-8 w-8 sm:h-12 sm:w-12 mx-auto text-gray-400 mb-3 sm:mb-4" aria-hidden="true" />
+          <p className="text-sm sm:text-base text-gray-600 mb-2">
             Drag and drop files here, or click to select
           </p>
-          <p className="text-xs text-gray-500 mb-4">
+          <p className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">
             Supported formats: PDF, JPG, PNG (Max 10MB)
           </p>
-          <Button onClick={handleFileSelect} variant="outline" disabled>
+          <Button 
+            onClick={handleFileSelect} 
+            variant="outline" 
+            disabled
+            className="min-h-[44px]"
+            aria-label="Select files (disabled in MVP)"
+          >
             Select Files
           </Button>
-          <p className="text-xs text-gray-400 mt-4">
+          <p className="text-xs text-gray-400 mt-3 sm:mt-4">
             ⚠️ File upload is disabled in MVP - visual only
           </p>
         </div>
