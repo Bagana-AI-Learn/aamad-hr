@@ -49,7 +49,7 @@ This repository demonstrates AAMAD in action by building an **Automated Employee
 - **Positive ROI within 6 months** for companies onboarding 50+ employees annually
 - **95%+ compliance rate** vs. industry average of 77%
 
-**Project Status:** Phase 2 (Build) - Frontend & Backend MVP Complete  
+**Project Status:** Phase 2 (Build) - Frontend, Backend & Integration MVP Complete  
 **PRD Document:** [`project-context/1.define/prd.md`](project-context/1.define/prd.md)  
 **Frontend Plan:** [`project-context/2.build/frontend.md`](project-context/2.build/frontend.md)  
 **Backend Plan:** [`project-context/2.build/backend.md`](project-context/2.build/backend.md)
@@ -61,8 +61,8 @@ The PRD defines a comprehensive multi-agent system with five specialized agents:
 4. **Training Coordinator Agent** - Assigns and tracks training modules
 5. **Stakeholder Coordinator Agent** - Facilitates communication and coordination
 
-**Frontend MVP Status:** ✅ Complete & Running
-- ✅ Chat interface with mock agent responses
+**Frontend MVP Status:** ✅ Complete & Running (Integrated)
+- ✅ Chat interface with real-time streaming responses from CrewAI backend
 - ✅ Onboarding status dashboard with placeholder data
 - ✅ Document upload UI (visual only, no backend connection)
 - ✅ Responsive design with Tailwind CSS
@@ -78,6 +78,7 @@ The PRD defines a comprehensive multi-agent system with five specialized agents:
 **Frontend Documentation:**
 - Development Plan: [`project-context/2.build/frontend.md`](project-context/2.build/frontend.md)
 - UI/UX Review: [`project-context/2.build/frontend-ui-review.md`](project-context/2.build/frontend-ui-review.md)
+- Frontend README: [`frontend/README.md`](frontend/README.md)
 
 **Quick Start:**
 ```bash
@@ -99,6 +100,7 @@ Then open `http://localhost:3000` in your browser.
 **Backend Documentation:**
 - Backend Plan & Implementation: [`project-context/2.build/backend.md`](project-context/2.build/backend.md)
 - Backend README: [`backend/README.md`](backend/README.md)
+- Integration Plan & Details: [`project-context/2.build/integration.md`](project-context/2.build/integration.md)
 
 **Backend Quick Start:**
 ```bash
@@ -111,8 +113,8 @@ python run.py
 Then open `http://localhost:8000/docs` in your browser.
 
 **Next Steps:** 
-- API integration connecting frontend to backend
-- End-to-end testing and QA
+- Phase 3 delivery and deployment hardening
+- Add automated tests (unit, integration, E2E) and production observability
 
 ---
 
@@ -284,8 +286,8 @@ Phase 2 is executed by running each epic in sequence after completing Phase 1:
 - **Setup:** Scaffold environment, install dependencies, and document (`setup.md`) - ✅ Complete
 - **Frontend:** Build UI + placeholders, document (`frontend.md`) - ✅ Complete & Rebuilt
 - **Backend:** Implement backend, document (`backend.md`) - ✅ Complete
-- **Integration:** Wire up chat flow, verify, document (`integration.md`) - ⏳ Pending
-- **Quality Assurance:** Test end-to-end, log results and limitations (`qa.md`) - ⏳ Pending
+- **Integration:** Wire up chat flow, verify, document (`integration.md`) - ✅ Complete
+- **Quality Assurance:** Test end-to-end, log results and limitations (`qa.md`) - ✅ Complete
 
 Artifacts are versioned and stored in `project-context/2.build` for traceability.
 

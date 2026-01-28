@@ -16,19 +16,16 @@ interface ChatInterfaceProps {
  * ChatInterface Component
  * 
  * Main chat interface component for LLM interaction.
- * Uses Zustand store for MVP with mock responses.
- * Prepared for assistant-ui integration when backend is ready.
+ * Connected to backend CrewAI API via Next.js API route proxy.
  * 
  * Reference:
  * - SAD Section 4.3: Chat Interface Specifications
  * - PRD Section 6: User Experience Design - Agent Interaction Design
  * - Frontend Plan Section 4.1: Chat Interface Components
- * 
- * Note: assistant-ui runtime integration will be added when backend is connected.
- * Current implementation uses Zustand store for state management.
+ * - Integration: Connected to backend/api/chat.py via frontend/app/api/chat/route.ts
  */
 export function ChatInterface({ initialMessages, onMessageSent }: ChatInterfaceProps) {
-  const { messages, isLoading } = useChatStore();
+  const { messages, isLoading, error } = useChatStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -38,7 +35,7 @@ export function ChatInterface({ initialMessages, onMessageSent }: ChatInterfaceP
   // Initialize with initialMessages if provided
   useEffect(() => {
     if (initialMessages && initialMessages.length > 0) {
-      // Will handle initial messages when backend is connected
+      // Initial messages can be loaded from backend in future
       // For MVP, messages are managed via Zustand store
     }
   }, [initialMessages]);
@@ -47,7 +44,7 @@ export function ChatInterface({ initialMessages, onMessageSent }: ChatInterfaceP
     if (onMessageSent) {
       onMessageSent(message);
     }
-    // Additional handling will be done in InputArea
+    // Message sending is handled in InputArea component
   };
 
   return (
@@ -83,6 +80,15 @@ export function ChatInterface({ initialMessages, onMessageSent }: ChatInterfaceP
       >
         <div className="h-full overflow-y-auto px-2 sm:px-4">
           <MessageList messages={messages} />
+          {error && (
+            <div 
+              className="mx-4 mt-2 p-3 bg-red-50 border border-red-200 rounded-lg"
+              role="alert"
+              aria-live="assertive"
+            >
+              <p className="text-sm text-red-800">{error}</p>
+            </div>
+          )}
           {isLoading && (
             <div 
               className="flex items-center justify-center p-4" 

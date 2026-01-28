@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { useChatStore } from '@/store/chatStore';
 import { Message } from '@/lib/types';
 import { Upload } from 'lucide-react';
+import { sendChatMessage } from '@/lib/chat-service';
 
 interface InputAreaProps {
   onSendMessage: (message: string) => void;
@@ -16,9 +17,12 @@ const MAX_MESSAGE_LENGTH = 2000;
 
 export function InputArea({ onSendMessage, disabled = false }: InputAreaProps) {
   const [input, setInput] = useState('');
-  const { addMessage, setLoading } = useChatStore();
+  const { addMessage, updateMessage, setLoading, setError, messages } = useChatStore();
+  
+  // Get store instance for accessing state in callbacks
+  const getStoreState = () => useChatStore.getState();
 
-  const handleSend = () => {
+  const handleSend = async () => {
     const trimmedInput = input.trim();
     if (!trimmedInput || disabled || trimmedInput.length > MAX_MESSAGE_LENGTH) return;
 
@@ -31,20 +35,85 @@ export function InputArea({ onSendMessage, disabled = false }: InputAreaProps) {
 
     addMessage(userMessage);
     setLoading(true);
+    setError(null);
     onSendMessage(trimmedInput);
     setInput('');
 
-    // Simulate agent response (mock - will be replaced with real backend)
-    setTimeout(() => {
-      const agentMessage: Message = {
-        id: `msg-${Date.now() + 1}`,
-        role: 'assistant',
-        content: 'Thank you for your message. This is a mock response. Backend integration will be implemented in the next phase.',
-        timestamp: new Date(),
-      };
-      addMessage(agentMessage);
+    // Create assistant message for streaming
+    const assistantMessageId = `msg-${Date.now() + 1}`;
+    let assistantMessageContent = '';
+
+    try {
+      // Build conversation history from current messages (before adding user message)
+      const conversationHistory = messages.map(msg => ({
+        role: msg.role,
+        content: msg.content,
+      }));
+
+      // Send message to backend and stream response
+      await sendChatMessage(
+        {
+          message: trimmedInput,
+          conversation_history: conversationHistory,
+        },
+        (chunk) => {
+          // Handle streaming chunks
+          if (chunk.status === 'thinking') {
+            // Agent is thinking - keep loading state
+            return;
+          }
+
+          if (chunk.chunk) {
+            // Append chunk to assistant message
+            assistantMessageContent += chunk.chunk;
+            
+            // Get current messages from store to check if message exists
+            const currentMessages = getStoreState().messages;
+            const existingMessage = currentMessages.find(m => m.id === assistantMessageId);
+            
+            if (existingMessage) {
+              // Update existing message
+              updateMessage(assistantMessageId, assistantMessageContent);
+            } else {
+              // Create new assistant message
+              const newMessage: Message = {
+                id: assistantMessageId,
+                role: 'assistant',
+                content: assistantMessageContent,
+                timestamp: new Date(),
+              };
+              addMessage(newMessage);
+            }
+          }
+
+          if (chunk.status === 'complete' || chunk.status === 'error') {
+            setLoading(false);
+            if (chunk.status === 'error') {
+              setError('An error occurred while processing your message.');
+            }
+          }
+        },
+        (error) => {
+          // Handle errors
+          console.error('Chat API error:', error);
+          setError(error.message || 'Failed to send message. Please try again.');
+          setLoading(false);
+          
+          // Add error message to chat
+          const errorMessage: Message = {
+            id: `msg-error-${Date.now()}`,
+            role: 'system',
+            content: `Error: ${error.message || 'Failed to connect to backend. Please ensure the backend server is running.'}`,
+            timestamp: new Date(),
+          };
+          addMessage(errorMessage);
+        }
+      );
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      setError('An unexpected error occurred.');
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
