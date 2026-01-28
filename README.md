@@ -51,7 +51,6 @@ This repository demonstrates AAMAD in action by building an **Automated Employee
 
 **Project Status:** Phase 2 (Build) - Frontend MVP Complete  
 **PRD Document:** [`project-context/1.define/prd.md`](project-context/1.define/prd.md)  
-**MRD Document:** [`project-context/1.define/mrd.md`](project-context/1.define/mrd.md)  
 **Frontend Plan:** [`project-context/2.build/frontend.md`](project-context/2.build/frontend.md)
 
 The PRD defines a comprehensive multi-agent system with five specialized agents:
@@ -227,7 +226,7 @@ The PRD template (`.cursor/templates/prd-template.md`) guides generation of comp
 Phase 1 outputs are stored in `project-context/1.define/`:
 
 - `prd.md` - ✅ **Product Requirements Document** for Automated Employee Onboarding Workflow - [View PRD](project-context/1.define/prd.md)
-- `mrd.md` - ✅ **Market Research Document** with comprehensive market analysis, competitive landscape, ROI analysis, and go/no-go recommendations - [View MRD](project-context/1.define/mrd.md)
+- `mrd.md` - Market Research Document with market analysis and competitive landscape (pending)
 - `context-summary.md` - Context handoff artifact summarizing key decisions and requirements (pending)
 - Handoff checklist - Validation checklist ensuring completeness before build phase (pending)
 
