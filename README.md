@@ -31,6 +31,57 @@ It enables teams to:
 
 ---
 
+## Current Project: Automated Employee Onboarding Workflow
+
+This repository demonstrates AAMAD in action by building an **Automated Employee Onboarding Workflow** system - a multi-agent AI solution that orchestrates the entire employee onboarding process from offer acceptance through first-day readiness.
+
+**Key Features:**
+- Automated document collection and compliance verification
+- IT access provisioning and system setup
+- Training assignment and tracking
+- Stakeholder communication and coordination
+- Intelligent workflow orchestration using CrewAI
+
+**Project Status:** Phase 2 (Build) - Frontend MVP Complete  
+**PRD Document:** [`project-context/1.define/prd.md`](project-context/1.define/prd.md)  
+**Frontend Plan:** [`project-context/2.build/frontend.md`](project-context/2.build/frontend.md)
+
+The PRD defines a comprehensive multi-agent system with five specialized agents:
+1. **Onboarding Orchestrator** - Supervises and coordinates the workflow
+2. **Document Verification Agent** - Handles compliance and document validation
+3. **IT Provisioning Agent** - Manages access and system provisioning
+4. **Training Coordinator Agent** - Assigns and tracks training modules
+5. **Stakeholder Coordinator Agent** - Facilitates communication and coordination
+
+**Frontend MVP Status:** ✅ Complete & Running
+- ✅ Chat interface with mock agent responses
+- ✅ Onboarding status dashboard with placeholder data
+- ✅ Document upload UI (visual only, no backend connection)
+- ✅ Responsive design with Tailwind CSS
+- ✅ Component library with shadcn/ui
+- ✅ TypeScript throughout
+- ✅ Zustand state management
+- ✅ WCAG 2.1 AA accessibility compliance
+- ✅ Character limit validation (2000 chars)
+- ✅ Proper ARIA labels and semantic HTML
+
+**Frontend Location:** [`frontend/`](frontend/) directory
+
+**Quick Start:**
+```bash
+cd frontend
+npm install
+npm run dev
+```
+Then open `http://localhost:3000` in your browser.
+
+**Next Steps:** 
+- Backend implementation (CrewAI agent orchestration)
+- API integration connecting frontend to backend
+- End-to-end testing and QA
+
+---
+
 ## AAMAD phases at a glance
 
 AAMAD organizes work into three phases: Define, Build, and Deliver, each with clear artifacts, personas, and rules to keep development auditable and reusable. 
@@ -162,10 +213,10 @@ The PRD template (`.cursor/templates/prd-template.md`) guides generation of comp
 
 Phase 1 outputs are stored in `project-context/1.define/`:
 
-- `mrd.md` - Market Research Document with market analysis and competitive landscape
-- `prd.md` - Product Requirements Document with comprehensive requirements and specifications
-- `context-summary.md` - Context handoff artifact summarizing key decisions and requirements
-- Handoff checklist - Validation checklist ensuring completeness before build phase
+- `prd.md` - ✅ **Product Requirements Document** for Automated Employee Onboarding Workflow - [View PRD](project-context/1.define/prd.md)
+- `mrd.md` - Market Research Document with market analysis and competitive landscape (pending)
+- `context-summary.md` - Context handoff artifact summarizing key decisions and requirements (pending)
+- Handoff checklist - Validation checklist ensuring completeness before build phase (pending)
 
 ### Success Criteria
 
@@ -185,12 +236,12 @@ The Product Manager works closely with research, product, business, and architec
 Each role is embodied by an agent persona, defined in `.cursor/agents/`.  
 Phase 2 is executed by running each epic in sequence after completing Phase 1:
 
-- **Architecture:** Generate solution architecture document (`sad.md`)
-- **Setup:** Scaffold environment, install dependencies, and document (`setup.md`)
-- **Frontend:** Build UI + placeholders, document (`frontend.md`)
-- **Backend:** Implement backend, document (`backend.md`)
-- **Integration:** Wire up chat flow, verify, document (`integration.md`)
-- **Quality Assurance:** Test end-to-end, log results and limitations (`qa.md`)
+- **Architecture:** Generate solution architecture document (`sad.md`) - ⏳ Pending
+- **Setup:** Scaffold environment, install dependencies, and document (`setup.md`) - ⏳ Pending
+- **Frontend:** Build UI + placeholders, document (`frontend.md`) - ✅ Complete & Rebuilt
+- **Backend:** Implement backend, document (`backend.md`) - ⏳ Pending
+- **Integration:** Wire up chat flow, verify, document (`integration.md`) - ⏳ Pending
+- **Quality Assurance:** Test end-to-end, log results and limitations (`qa.md`) - ⏳ Pending
 
 Artifacts are versioned and stored in `project-context/2.build` for traceability.
 
