@@ -67,12 +67,17 @@ The PRD defines a comprehensive multi-agent system with five specialized agents:
 
 **Frontend Location:** [`frontend/`](frontend/) directory
 
+**Frontend Documentation:**
+- Development Plan: [`project-context/2.build/frontend.md`](project-context/2.build/frontend.md)
+- UI/UX Review: [`project-context/2.build/frontend-ui-review.md`](project-context/2.build/frontend-ui-review.md)
+
 **Quick Start:**
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+Then open `http://localhost:3000` in your browser.
 Then open `http://localhost:3000` in your browser.
 
 **Next Steps:** 
