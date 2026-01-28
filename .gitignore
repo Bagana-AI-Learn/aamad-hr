@@ -56,3 +56,16 @@ logs/
 # Project specific
 project-context/**/logs/
 project-context/**/*.tmp
+
+# Frontend build artifacts
+frontend/node_modules/
+frontend/.next/
+frontend/.next/*
+frontend/out/
+frontend/build/
+frontend/dist/
+frontend/*.log
+frontend/.env*.local
+frontend/.vercel
+frontend/next-env.d.ts
+frontend/.turbo
