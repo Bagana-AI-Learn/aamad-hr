@@ -33,18 +33,48 @@ export async function POST(request: Request) {
     }
 
     // Forward request to backend
-    const backendResponse = await fetch(`${BACKEND_URL}/api/chat`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    });
+    let backendResponse;
+    try {
+      backendResponse = await fetch(`${BACKEND_URL}/api/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+    } catch (fetchError) {
+      console.error('Failed to connect to backend:', fetchError);
+      return NextResponse.json(
+        { 
+          error: 'Failed to connect to backend server',
+          details: fetchError instanceof Error ? fetchError.message : String(fetchError),
+          backendUrl: BACKEND_URL
+        },
+        { status: 503 }
+      );
+    }
 
     if (!backendResponse.ok) {
-      const errorText = await backendResponse.text();
+      let errorText = '';
+      try {
+        errorText = await backendResponse.text();
+      } catch (e) {
+        errorText = `Backend returned status ${backendResponse.status}`;
+      }
+      
+      // Log error for debugging
+      console.error('Backend error:', {
+        status: backendResponse.status,
+        statusText: backendResponse.statusText,
+        error: errorText
+      });
+      
       return NextResponse.json(
-        { error: `Backend error: ${errorText}` },
+        { 
+          error: `Backend error: ${errorText}`,
+          status: backendResponse.status,
+          statusText: backendResponse.statusText
+        },
         { status: backendResponse.status }
       );
     }

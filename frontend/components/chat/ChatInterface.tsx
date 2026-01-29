@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { MessageList } from './MessageList';
 import { InputArea } from './InputArea';
 import { AgentStatus } from './AgentStatus';
@@ -14,10 +14,10 @@ interface ChatInterfaceProps {
 
 /**
  * ChatInterface Component
- * 
+ *
  * Main chat interface component for LLM interaction.
  * Connected to backend CrewAI API via Next.js API route proxy.
- * 
+ *
  * Reference:
  * - SAD Section 4.3: Chat Interface Specifications
  * - PRD Section 6: User Experience Design - Agent Interaction Design
@@ -27,24 +27,24 @@ interface ChatInterfaceProps {
 export function ChatInterface({ initialMessages, onMessageSent }: ChatInterfaceProps) {
   const { messages, isLoading, error } = useChatStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [prefillPrompt, setPrefillPrompt] = useState<string | null>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Initialize with initialMessages if provided
   useEffect(() => {
     if (initialMessages && initialMessages.length > 0) {
       // Initial messages can be loaded from backend in future
-      // For MVP, messages are managed via Zustand store
     }
   }, [initialMessages]);
 
   const handleSendMessage = (message: string) => {
-    if (onMessageSent) {
-      onMessageSent(message);
-    }
-    // Message sending is handled in InputArea component
+    if (onMessageSent) onMessageSent(message);
+  };
+
+  const handleExampleClick = (prompt: string) => {
+    setPrefillPrompt(prompt);
   };
 
   return (
@@ -79,7 +79,7 @@ export function ChatInterface({ initialMessages, onMessageSent }: ChatInterfaceP
         aria-atomic="false"
       >
         <div className="h-full overflow-y-auto px-2 sm:px-4">
-          <MessageList messages={messages} />
+          <MessageList messages={messages} onExampleClick={handleExampleClick} />
           {error && (
             <div 
               className="mx-4 mt-2 p-3 bg-red-50 border border-red-200 rounded-lg"
@@ -112,7 +112,12 @@ export function ChatInterface({ initialMessages, onMessageSent }: ChatInterfaceP
 
       {/* Input Area */}
       <footer className="flex-shrink-0 border-t border-gray-200 bg-white">
-        <InputArea onSendMessage={handleSendMessage} disabled={isLoading} />
+        <InputArea
+          onSendMessage={handleSendMessage}
+          disabled={isLoading}
+          prefillPrompt={prefillPrompt}
+          onPrefillConsumed={() => setPrefillPrompt(null)}
+        />
       </footer>
     </div>
   );

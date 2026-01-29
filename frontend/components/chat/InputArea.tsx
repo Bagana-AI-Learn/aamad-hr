@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useChatStore } from '@/store/chatStore';
@@ -11,16 +11,72 @@ import { sendChatMessage } from '@/lib/chat-service';
 interface InputAreaProps {
   onSendMessage: (message: string) => void;
   disabled?: boolean;
+  prefillPrompt?: string | null;
+  onPrefillConsumed?: () => void;
 }
 
 const MAX_MESSAGE_LENGTH = 2000;
 
-export function InputArea({ onSendMessage, disabled = false }: InputAreaProps) {
+function stripMarkdownCodeBlocks(s: string): string {
+  let t = s.trim();
+  for (const marker of ['```json', '```JSON', '```']) {
+    const i = t.indexOf(marker);
+    if (i >= 0) {
+      t = t.slice(i + marker.length).replace(/^\s*[\n\r]+/, '').trim();
+      const j = t.indexOf('```');
+      if (j >= 0) t = t.slice(0, j).trim();
+      break;
+    }
+  }
+  return t;
+}
+
+function extractJsonObject(s: string): string | null {
+  const start = s.indexOf('{');
+  if (start < 0) return null;
+  let depth = 0;
+  for (let i = start; i < s.length; i++) {
+    if (s[i] === '{') depth++;
+    else if (s[i] === '}') {
+      depth--;
+      if (depth === 0) return s.slice(start, i + 1);
+    }
+  }
+  return null;
+}
+
+/** Extract plain-text message from content. Removes JSON / markdown wrapping so UI shows only the message. */
+function extractMessageText(content: string): string {
+  if (!content || typeof content !== 'string') return content;
+  const stripped = stripMarkdownCodeBlocks(content);
+  const jsonStr = extractJsonObject(stripped) ?? (stripped.startsWith('{') || stripped.startsWith('[') ? stripped : null);
+  if (jsonStr) {
+    try {
+      const data = JSON.parse(jsonStr);
+      if (data && typeof data === 'object') {
+        const v = data.message ?? data.content ?? data.text ?? data.response ?? data.output;
+        if (typeof v === 'string') return v.trim();
+      }
+    } catch {
+      /* fallback: regex extract "message":"..." or "content":"..." when JSON is invalid */
+      const m = jsonStr.match(/"message"\s*:\s*"((?:[^"\\]|\\.)*)"|"content"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+      if (m) return (m[1] ?? m[2] ?? '').replace(/\\"/g, '"').trim();
+    }
+  }
+  return content;
+}
+
+export function InputArea({ onSendMessage, disabled = false, prefillPrompt, onPrefillConsumed }: InputAreaProps) {
   const [input, setInput] = useState('');
-  const { addMessage, updateMessage, setLoading, setError, messages } = useChatStore();
-  
-  // Get store instance for accessing state in callbacks
-  const getStoreState = () => useChatStore.getState();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const { addMessage, setLoading, setError, messages } = useChatStore();
+
+  useEffect(() => {
+    if (!prefillPrompt) return;
+    setInput(prefillPrompt);
+    onPrefillConsumed?.();
+    inputRef.current?.focus();
+  }, [prefillPrompt, onPrefillConsumed]);
 
   const handleSend = async () => {
     const trimmedInput = input.trim();
@@ -39,54 +95,35 @@ export function InputArea({ onSendMessage, disabled = false }: InputAreaProps) {
     onSendMessage(trimmedInput);
     setInput('');
 
-    // Create assistant message for streaming
     const assistantMessageId = `msg-${Date.now() + 1}`;
     let assistantMessageContent = '';
 
     try {
-      // Build conversation history from current messages (before adding user message)
-      const conversationHistory = messages.map(msg => ({
+      // Prior turns only; current message is sent as `message`
+      const conversationHistory = messages.map((msg) => ({
         role: msg.role,
         content: msg.content,
       }));
 
-      // Send message to backend and stream response
       await sendChatMessage(
         {
           message: trimmedInput,
           conversation_history: conversationHistory,
         },
         (chunk) => {
-          // Handle streaming chunks
-          if (chunk.status === 'thinking') {
-            // Agent is thinking - keep loading state
-            return;
-          }
+          if (chunk.status === 'thinking') return;
 
-          if (chunk.chunk) {
-            // Append chunk to assistant message
-            assistantMessageContent += chunk.chunk;
-            
-            // Get current messages from store to check if message exists
-            const currentMessages = getStoreState().messages;
-            const existingMessage = currentMessages.find(m => m.id === assistantMessageId);
-            
-            if (existingMessage) {
-              // Update existing message
-              updateMessage(assistantMessageId, assistantMessageContent);
-            } else {
-              // Create new assistant message
-              const newMessage: Message = {
-                id: assistantMessageId,
-                role: 'assistant',
-                content: assistantMessageContent,
-                timestamp: new Date(),
-              };
-              addMessage(newMessage);
-            }
-          }
+          if (chunk.chunk) assistantMessageContent += chunk.chunk;
 
           if (chunk.status === 'complete' || chunk.status === 'error') {
+            const toShow = extractMessageText(assistantMessageContent);
+            const assistantMessage: Message = {
+              id: assistantMessageId,
+              role: 'assistant',
+              content: toShow,
+              timestamp: new Date(),
+            };
+            addMessage(assistantMessage);
             setLoading(false);
             if (chunk.status === 'error') {
               setError('An error occurred while processing your message.');
@@ -96,14 +133,22 @@ export function InputArea({ onSendMessage, disabled = false }: InputAreaProps) {
         (error) => {
           // Handle errors
           console.error('Chat API error:', error);
-          setError(error.message || 'Failed to send message. Please try again.');
+          const errorMsg = error.message || 'Failed to send message. Please try again.';
+          setError(errorMsg);
           setLoading(false);
           
-          // Add error message to chat
+          // Add error message to chat with helpful guidance
+          let userFriendlyError = errorMsg;
+          if (errorMsg.includes('Failed to connect') || errorMsg.includes('fetch')) {
+            userFriendlyError = 'Failed to connect to backend server. Please ensure the backend is running on http://localhost:8000';
+          } else if (errorMsg.includes('500')) {
+            userFriendlyError = 'Backend server error. Please check backend logs for details. Common causes: missing OpenAI API key or crew initialization failure.';
+          }
+          
           const errorMessage: Message = {
             id: `msg-error-${Date.now()}`,
             role: 'system',
-            content: `Error: ${error.message || 'Failed to connect to backend. Please ensure the backend server is running.'}`,
+            content: `Error: ${userFriendlyError}`,
             timestamp: new Date(),
           };
           addMessage(errorMessage);
@@ -135,6 +180,7 @@ export function InputArea({ onSendMessage, disabled = false }: InputAreaProps) {
       <div className="flex items-end gap-2">
         <div className="flex-1 relative">
           <Input
+            ref={inputRef}
             value={input}
             onChange={(e) => {
               const value = e.target.value;

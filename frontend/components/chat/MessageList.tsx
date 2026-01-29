@@ -2,13 +2,15 @@
 
 import { Message } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { exampleChatPrompts } from '@/lib/constants';
 
 interface MessageListProps {
   messages: Message[];
   className?: string;
+  onExampleClick?: (prompt: string) => void;
 }
 
-export function MessageList({ messages, className }: MessageListProps) {
+export function MessageList({ messages, className, onExampleClick }: MessageListProps) {
   return (
     <div 
       className={cn('flex flex-col gap-3 sm:gap-4 py-4', className)}
@@ -18,15 +20,36 @@ export function MessageList({ messages, className }: MessageListProps) {
     >
       {messages.length === 0 ? (
         <div 
-          className="flex items-center justify-center min-h-[200px] text-gray-500 px-4"
+          className="flex flex-col items-center justify-center min-h-[200px] text-gray-500 px-4"
           role="status"
           aria-live="polite"
         >
-          <div className="text-center max-w-md">
+          <div className="text-center max-w-md mb-4">
             <p className="text-base sm:text-lg mb-2">Welcome to the Onboarding Assistant</p>
-            <p className="text-sm text-gray-400">
-              Start a conversation to begin your onboarding process. I can help you with document submission, IT access, training, and more.
+            <p className="text-sm text-gray-400 mb-3">
+              Start a conversation about onboarding. I can help with documents, IT access, training, and coordination.
             </p>
+            <p className="text-xs text-gray-500 mb-4">
+              You don&apos;t need to provide Employee ID or Workflow ID — just ask your question.
+            </p>
+            <p className="text-xs font-medium text-gray-500 mb-2">Example questions:</p>
+            <ul className="text-left space-y-1.5">
+              {exampleChatPrompts.map((prompt) => (
+                <li key={prompt}>
+                  {onExampleClick ? (
+                    <button
+                      type="button"
+                      onClick={() => onExampleClick(prompt)}
+                      className="text-sm text-blue-600 hover:text-blue-800 hover:underline text-left w-full py-1 rounded px-2 -mx-2 hover:bg-gray-100 transition-colors"
+                    >
+                      {prompt}
+                    </button>
+                  ) : (
+                    <span className="text-sm text-gray-600">{prompt}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       ) : (

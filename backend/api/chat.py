@@ -102,10 +102,21 @@ async def chat_endpoint(request: ChatRequest, app_request: Request):
     )
     
     # Get crew manager from app state
-    crew_manager: OnboardingCrewManager = app_request.app.state.crew_manager
+    try:
+        crew_manager: OnboardingCrewManager = app_request.app.state.crew_manager
+    except AttributeError:
+        logger.error("Crew manager not found in app state")
+        raise HTTPException(
+            status_code=500, 
+            detail="Crew manager not initialized. Please check backend logs for initialization errors."
+        )
     
     if not crew_manager:
-        raise HTTPException(status_code=500, detail="Crew manager not initialized")
+        logger.error("Crew manager is None")
+        raise HTTPException(
+            status_code=500, 
+            detail="Crew manager is None. Please check backend logs for initialization errors."
+        )
     
     # Return streaming response
     return StreamingResponse(

@@ -1,77 +1,90 @@
-# Backend - CrewAI Agent Orchestration
+# Backend – CrewAI Agent Orchestration
 
-This directory contains the Python backend for the Automated Employee Onboarding Workflow system.
+Python backend for the **Automated Employee Onboarding Workflow**. Chat uses **OpenRouter** (OpenAI-compatible API) via CrewAI.
 
 ## Structure
 
-- `main.py` - FastAPI application entry point
-- `api/` - API route handlers (chat endpoint)
-- `agents/` - CrewAI agent definitions (future)
-- `tools/` - Custom tools for agents (stub implementations)
-- `config/` - Agent and crew configuration files (YAML)
-- `services/` - Service layer (crew manager, stubs)
-- `models/` - Database models and schemas (stubbed)
-- `utils/` - Utility functions and helpers
-- `tests/` - Test files (future)
+| Path | Description |
+|------|-------------|
+| `main.py` | FastAPI app entry point |
+| `api/` | Route handlers (chat, stubs) |
+| `config/` | Agent & task YAML (`agents.yaml`, `tasks.yaml`) |
+| `services/` | Crew manager, integration stubs |
+| `tools/` | CrewAI tools (stubs) |
+| `utils/` | Config, agent loader |
+| `verify_openrouter.py` | OpenRouter + connection verification script |
+| `test_llm.py` | Direct LLM API test |
 
-## Quick Start
+## Quick start
 
-1. **Create virtual environment:**
-   ```bash
-   python -m venv venv
-   ```
+### 1. Environment
 
-2. **Activate virtual environment:**
-   ```bash
-   # Windows
-   venv\Scripts\activate
-   # Linux/Mac
-   source venv/bin/activate
-   ```
+```bash
+python -m venv venv
+# Windows: venv\Scripts\activate
+# Linux/Mac: source venv/bin/activate
+pip install -r requirements.txt
+```
 
-3. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+### 2. OpenRouter env vars
 
-4. **Set up environment variables:**
-   - Copy `.env.example` to `.env` (if exists) or create `.env` file
-   - Set `OPENAI_API_KEY` (required)
-   - Configure other variables as needed
+Create `backend/.env` or set before running:
 
-5. **Start backend server:**
-   ```bash
-   python run.py
-   # Or
-   uvicorn main:app --reload --port 8000
-   ```
+```env
+OPENAI_API_KEY=sk-or-v1-your-openrouter-key
+OPENAI_BASE_URL=https://openrouter.ai/api/v1
+OPENAI_MODEL=openai/gpt-3.5-turbo
+OPENAI_TEMPERATURE=0.5
+CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+```
 
-6. **Access API:**
-   - API: http://localhost:8000
-   - Docs: http://localhost:8000/docs
-   - Health: http://localhost:8000/health
-   - Chat: POST http://localhost:8000/api/chat
+- `OPENAI_API_KEY` – **Required.** OpenRouter API key.
+- `OPENAI_BASE_URL` – Default `https://openrouter.ai/api/v1`.
+- `OPENAI_MODEL` – e.g. `openai/gpt-3.5-turbo`.
+- `CREWAI_MEMORY` – Default `false` (recommended for gpt-3.5-turbo).
 
-## MVP Status
+See **`OPENROUTER_SETUP.md`** for details.
 
-✅ **Implemented:**
-- FastAPI application with CORS
-- CrewAI crew manager with orchestrator agent
-- Agent loader from YAML configuration
-- Stub tools for all agent types
-- Chat API endpoint with streaming support
-- Configuration management
-- Structured logging
+### 3. Verify connection
 
-⏳ **Pending (Future Phases):**
-- Full multi-agent crew (5 agents)
-- Database integration
-- Real tool implementations
-- Authentication and authorization
-- Rate limiting
-- Additional API endpoints
+```bash
+cd backend
+python verify_openrouter.py
+```
 
-## Development
+Checks env, `llm.provider` / `llm.api_key_set`, and an optional chat call.
 
-See `project-context/2.build/setup.md` for detailed setup instructions.  
-See `project-context/2.build/backend.md` for complete implementation documentation.
+### 4. Run backend
+
+```bash
+uvicorn main:app --host 0.0.0.0 --port 8000
+# Or: python run.py
+```
+
+### 5. Test connection
+
+- **Root:** http://localhost:8000/  
+- **Health:** http://localhost:8000/health  
+- **Chat status (LLM config):** http://localhost:8000/api/chat/status  
+- **Docs:** http://localhost:8000/docs  
+- **Chat:** `POST http://localhost:8000/api/chat` with `{"message": "What documents do I need?"}`  
+
+## MVP status
+
+**Done:**
+
+- FastAPI app, CORS, config from env
+- CrewAI crew manager, orchestrator agent from YAML
+- Chat API with SSE streaming
+- OpenRouter LLM integration
+- `verify_openrouter.py`, `test_llm.py`
+
+**Later:**
+
+- Full multi-agent crew, DB, real tools, auth, rate limiting
+
+## References
+
+- **`OPENROUTER_SETUP.md`** – OpenRouter setup and verification
+- **`project-context/2.build/backend.md`** – Implementation notes
+- **`project-context/2.build/setup.md`** – Project setup

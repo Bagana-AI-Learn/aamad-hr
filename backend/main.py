@@ -58,8 +58,14 @@ async def lifespan(app: FastAPI):
     logger.info("Starting backend application", version="0.1.0")
     
     # Initialize crew manager
-    app.state.crew_manager = OnboardingCrewManager()
-    logger.info("CrewAI manager initialized")
+    try:
+        app.state.crew_manager = OnboardingCrewManager()
+        logger.info("CrewAI manager initialized successfully")
+    except Exception as e:
+        logger.error("Failed to initialize CrewAI manager", error=str(e), exc_info=True)
+        # Set to None so we can handle the error in the endpoint
+        app.state.crew_manager = None
+        logger.warning("Application started but crew manager initialization failed")
     
     yield
     
@@ -78,7 +84,7 @@ app = FastAPI(
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=settings.get_cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

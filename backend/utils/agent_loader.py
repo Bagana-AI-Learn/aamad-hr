@@ -14,7 +14,7 @@ import os
 from typing import Dict, List, Any
 from pathlib import Path
 from crewai import Agent
-from crewai.agent import LLM
+from langchain_core.language_models import BaseChatModel
 from langchain_openai import ChatOpenAI
 import structlog
 
@@ -57,7 +57,7 @@ def load_agents_from_yaml(config_path: str = None) -> Dict[str, Dict[str, Any]]:
 
 def create_agent_from_config(
     agent_config: Dict[str, Any],
-    llm: LLM = None,
+    llm: BaseChatModel = None,
     tools: List[Any] = None
 ) -> Agent:
     """
@@ -83,14 +83,16 @@ def create_agent_from_config(
     max_execution_time = agent_config.get('max_execution_time', 300)
     memory = agent_config.get('memory', True)
     
-    # Create LLM if not provided
+    # Create LLM if not provided (OpenRouter / OpenAI-compatible)
     if llm is None:
         from utils.config import get_settings
         settings = get_settings()
+        base_url = settings.OPENAI_BASE_URL or settings.OPENAI_API_BASE or None
         llm = ChatOpenAI(
             model=settings.OPENAI_MODEL,
             temperature=settings.OPENAI_TEMPERATURE,
             api_key=settings.OPENAI_API_KEY,
+            base_url=base_url,
         )
     
     # Create agent

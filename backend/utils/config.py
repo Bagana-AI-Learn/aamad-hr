@@ -19,16 +19,27 @@ class Settings(BaseSettings):
     DEBUG: bool = Field(default=False, env="DEBUG")
     LOG_LEVEL: str = Field(default="INFO", env="LOG_LEVEL")
     
-    # CORS
-    CORS_ORIGINS: List[str] = Field(
-        default=["http://localhost:3000", "http://127.0.0.1:3000"],
+    # CORS (comma-separated string from env, converted to list)
+    CORS_ORIGINS: str = Field(
+        default="http://localhost:3000,http://127.0.0.1:3000",
         env="CORS_ORIGINS"
     )
     
-    # LLM Configuration
+    def get_cors_origins(self) -> List[str]:
+        """Parse CORS_ORIGINS string into list."""
+        if isinstance(self.CORS_ORIGINS, list):
+            return self.CORS_ORIGINS
+        return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
+    
+    # LLM Provider: OpenAI-compatible (OpenRouter, OpenAI, etc.)
+    LLM_PROVIDER: str = Field(default="openai", env="LITELLM_PROVIDER")
+    
+    # OpenRouter / OpenAI-compatible API
     OPENAI_API_KEY: str = Field(default="", env="OPENAI_API_KEY")
-    OPENAI_MODEL: str = Field(default="gpt-4", env="OPENAI_MODEL")
-    OPENAI_TEMPERATURE: float = Field(default=0.3, env="OPENAI_TEMPERATURE")
+    OPENAI_MODEL: str = Field(default="openai/gpt-3.5-turbo", env="OPENAI_MODEL")
+    OPENAI_BASE_URL: str = Field(default="https://openrouter.ai/api/v1", env="OPENAI_BASE_URL")
+    OPENAI_API_BASE: str = Field(default="", env="OPENAI_API_BASE")  # Alias for OPENAI_BASE_URL
+    OPENAI_TEMPERATURE: float = Field(default=0.5, env="OPENAI_TEMPERATURE")
     
     ANTHROPIC_API_KEY: str = Field(default="", env="ANTHROPIC_API_KEY")
     ANTHROPIC_MODEL: str = Field(default="claude-3-opus-20240229", env="ANTHROPIC_MODEL")
@@ -36,7 +47,7 @@ class Settings(BaseSettings):
     # CrewAI Configuration
     CREWAI_MAX_RPM: int = Field(default=100, env="CREWAI_MAX_RPM")
     CREWAI_VERBOSE: bool = Field(default=True, env="CREWAI_VERBOSE")
-    CREWAI_MEMORY: bool = Field(default=True, env="CREWAI_MEMORY")
+    CREWAI_MEMORY: bool = Field(default=False, env="CREWAI_MEMORY")
     
     # Feature Flags
     ENABLE_STREAMING: bool = Field(default=True, env="ENABLE_STREAMING")
@@ -45,6 +56,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "ignore"  # Ignore extra fields from .env instead of raising errors
 
 
 _settings: Settings = None
