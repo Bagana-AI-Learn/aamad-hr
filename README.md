@@ -72,6 +72,7 @@ The PRD defines a comprehensive multi-agent system with five specialized agents:
 - ✅ WCAG 2.1 AA accessibility compliance
 - ✅ Character limit validation (2000 chars)
 - ✅ Proper ARIA labels and semantic HTML
+- ✅ Example prompts and plain-text-only responses
 
 **Frontend Location:** [`frontend/`](frontend/) directory
 
@@ -86,7 +87,8 @@ cd frontend
 npm install
 npm run dev
 ```
-Then open `http://localhost:3000` in your browser.
+Then open `http://localhost:3000` in your browser.  
+**Note:** Chat requires the backend to be running first (see Backend Quick Start below).
 
 **Backend MVP Status:** ✅ Complete (Chat API & CrewAI backend)
 - ✅ FastAPI backend with health and chat endpoints
@@ -94,23 +96,37 @@ Then open `http://localhost:3000` in your browser.
 - ✅ Agent configuration loaded from YAML (`backend/config/agents.yaml`)
 - ✅ Stub tools for all planned agents (no real integrations yet)
 - ✅ Streaming chat API (Server-Sent Events)
+- ✅ OpenRouter LLM integration (OpenAI-compatible API)
+- ✅ `verify_openrouter.py` for connection verification
 
 **Backend Location:** [`backend/`](backend/) directory
 
 **Backend Documentation:**
 - Backend Plan & Implementation: [`project-context/2.build/backend.md`](project-context/2.build/backend.md)
 - Backend README: [`backend/README.md`](backend/README.md)
+- OpenRouter Setup: [`backend/OPENROUTER_SETUP.md`](backend/OPENROUTER_SETUP.md)
 - Integration Plan & Details: [`project-context/2.build/integration.md`](project-context/2.build/integration.md)
 
 **Backend Quick Start:**
 ```bash
 cd backend
 python -m venv venv
-venv\Scripts\activate  # Windows
+venv\Scripts\activate  # Windows; Linux/Mac: source venv/bin/activate
 pip install -r requirements.txt
-python run.py
+
+# Set OpenRouter env vars (required for chat)
+# Windows PowerShell:
+$env:OPENAI_API_KEY="sk-or-v1-your-key"
+$env:OPENAI_BASE_URL="https://openrouter.ai/api/v1"
+$env:OPENAI_MODEL="openai/gpt-3.5-turbo"
+
+# Verify connection (optional)
+python verify_openrouter.py
+
+# Start server
+uvicorn main:app --host 0.0.0.0 --port 8000
 ```
-Then open `http://localhost:8000/docs` in your browser.
+Then open `http://localhost:8000/docs` or `http://localhost:8000/health` in your browser.
 
 **Next Steps:** 
 - Phase 3 delivery and deployment hardening
@@ -173,10 +189,13 @@ flowchart LR
     │ ├─ services/        # Crew manager and integration stubs
     │ ├─ tools/           # Stub tools for agents
     │ ├─ models/          # (Stub) database models
-    │ └─ utils/           # Config and agent loader utilities
+    │ ├─ utils/           # Config and agent loader utilities
+    │ ├─ verify_openrouter.py   # OpenRouter connection verification
+    │ └─ OPENROUTER_SETUP.md    # OpenRouter setup guide
     ├─ frontend/          # Next.js frontend (chat UI + onboarding UI)
     │ ├─ app/             # App Router pages and API routes
     │ └─ components/      # Chat, onboarding, and placeholder components
+    ├─ docs/              # Project documentation (e.g. CHAT_INSTRUCTIONS.md)
     ├─ project-context/
     │ ├─ 1.define/        # Project-specific PRD, SAD, research reports, etc.
     │ ├─ 2.build/         # Output artifacts for setup, frontend, backend, etc.
